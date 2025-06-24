@@ -1,10 +1,11 @@
 {
-  "name": "scraping-stock-data",
+  "name": "moneycontrol-swot-scraper",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A script to scrape SWOT analysis data from Moneycontrol.com",
+  "main": "app.js",
   "type": "module",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

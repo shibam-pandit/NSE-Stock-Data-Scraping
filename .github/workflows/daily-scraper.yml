@@ -1,0 +1,50 @@
+name: Daily SWOT Data Scraping
+
+on:
+  schedule:
+    # Runs at 01:00 UTC every day (adjust this time as needed)
+    - cron: '0 1 * * *'
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  scrape_data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Create .env file
+        run: |
+          echo "MC_USERNAME=${{ secrets.MC_USERNAME }}" > .env
+          echo "MC_PASSWORD=${{ secrets.MC_PASSWORD }}" >> .env
+          echo "SPREADSHEET_ID=${{ secrets.SPREADSHEET_ID }}" >> .env
+        
+      - name: Setup service account key
+        run: |
+          echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}' > service-account-key.json
+        
+      - name: Run scraper
+        run: node app.js
+        
+      - name: Handle potential failures
+        if: ${{ failure() }}
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Scraper failure on ${new Date().toISOString().split('T')[0]}`,
+              body: `The daily SWOT data scraper failed to run.\nSee workflow run: https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            })

@@ -10,6 +10,7 @@ This project is a Node.js script that scrapes SWOT (Strengths, Weaknesses, Oppor
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Automated Scraping with GitHub Actions](#automated-scraping-with-github-actions)
 - [Project Structure](#project-structure)
 - [Companies Scraped](#companies-scraped)
 - [Troubleshooting](#troubleshooting)
@@ -22,6 +23,7 @@ This project is a Node.js script that scrapes SWOT (Strengths, Weaknesses, Oppor
 - **Automated Login**: Logs into Moneycontrol using provided credentials to access premium SWOT data.
 - **SWOT Data Extraction**: Scrapes SWOT counts for 10 major Indian companies.
 - **Google Sheets Integration**: Stores the scraped data in a Google Sheet for easy access and analysis.
+- **Daily Automation**: Uses GitHub Actions to run the scraper daily on a schedule.
 - **Error Handling**: Includes robust error handling and logging for debugging.
 
 ## Prerequisites
@@ -102,16 +104,44 @@ Before running the script, ensure you have the following:
      - Accessed iframe content
      - Filled login form and submitted
      - Login process completed
-     - Navigated to company page: <URL>
-     - Data updated in Google Sheet
+     - Navigated to company page: <URL>     - Data updated in Google Sheet
+
+## Automated Scraping with GitHub Actions
+
+This script is configured to run automatically every day using GitHub Actions.
+
+1. **How It Works**:
+   - The script is scheduled to run at 01:00 UTC daily (adjust this time in `.github/workflows/daily-scraper.yml`).
+   - GitHub Actions executes the script in a cloud environment, so your computer doesn't need to be on.
+   - Results are automatically updated in your Google Sheet.
+
+2. **Setup GitHub Actions**:
+   - All necessary configuration is included in `.github/workflows/daily-scraper.yml`.
+   - After pushing to GitHub, add these repository secrets in your GitHub repository settings:
+     ```
+     MC_USERNAME       (your Moneycontrol username)
+     MC_PASSWORD       (your Moneycontrol password)
+     SPREADSHEET_ID    (your Google Sheet ID)
+     GOOGLE_SERVICE_ACCOUNT_KEY (the entire JSON content of your service-account-key.json file)
+     ```
+
+3. **Manual Triggering**:
+   - You can also manually trigger the workflow from the "Actions" tab in your GitHub repository.
+   
+4. **Monitoring**:
+   - Check the "Actions" tab in your GitHub repository to monitor runs.
+   - If a run fails, an issue will be automatically created in your repository.
 
 ## Project Structure
 
 ```
 moneycontrol-swot-scraper/
 ├── .env                    # Environment variables (MC_USERNAME, MC_PASSWORD, SPREADSHEET_ID)
+├── .github/
+│   └── workflows/
+│       └── daily-scraper.yml # GitHub Actions workflow for daily scraping
 ├── package.json            # Project dependencies and scripts
-├── app.js              # Main script for scraping and storing data
+├── app.js                  # Main script for scraping and storing data
 └── service-account-key.json # Google Cloud service account key (not tracked in git)
 ```
 
